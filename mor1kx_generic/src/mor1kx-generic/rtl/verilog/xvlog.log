@@ -1,0 +1,8 @@
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/davide/Documents/2016_postdoc_tools/mor1kx_/mor1kx-generic/src/mor1kx-generic/rtl/verilog/orpsoc_top.v" into library work
+INFO: [VRFC 10-311] analyzing module orpsoc_top
+ERROR: [VRFC 10-1532] use of undefined macro IS_ICACHE [/home/davide/Documents/2016_postdoc_tools/mor1kx_/mor1kx-generic/src/mor1kx-generic/rtl/verilog/orpsoc_top.v:143]
+ERROR: [VRFC 10-1532] use of undefined macro IS_IMMU [/home/davide/Documents/2016_postdoc_tools/mor1kx_/mor1kx-generic/src/mor1kx-generic/rtl/verilog/orpsoc_top.v:148]
+ERROR: [VRFC 10-1532] use of undefined macro IS_DCACHE [/home/davide/Documents/2016_postdoc_tools/mor1kx_/mor1kx-generic/src/mor1kx-generic/rtl/verilog/orpsoc_top.v:149]
+ERROR: [VRFC 10-1532] use of undefined macro IS_DMMU [/home/davide/Documents/2016_postdoc_tools/mor1kx_/mor1kx-generic/src/mor1kx-generic/rtl/verilog/orpsoc_top.v:154]
+ERROR: [VRFC 10-1532] use of undefined macro CPU_NAME [/home/davide/Documents/2016_postdoc_tools/mor1kx_/mor1kx-generic/src/mor1kx-generic/rtl/verilog/orpsoc_top.v:158]
+ERROR: [VRFC 10-1040] module orpsoc_top ignored due to previous errors [/home/davide/Documents/2016_postdoc_tools/mor1kx_/mor1kx-generic/src/mor1kx-generic/rtl/verilog/orpsoc_top.v:1]

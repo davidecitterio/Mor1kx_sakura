@@ -1,0 +1,4 @@
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/davide/Documents/2016_postdoc_tools/mor1kx_/mor1kx-generic/src/wb_ram-1.0/rtl/verilog/wb_ram.v" into library work
+INFO: [VRFC 10-311] analyzing module wb_ram
+ERROR: [VRFC 10-452] cannot open include file wb_common.v [/home/davide/Documents/2016_postdoc_tools/mor1kx_/mor1kx-generic/src/wb_ram-1.0/rtl/verilog/wb_ram.v:24]
+ERROR: [VRFC 10-1040] module wb_ram ignored due to previous errors [/home/davide/Documents/2016_postdoc_tools/mor1kx_/mor1kx-generic/src/wb_ram-1.0/rtl/verilog/wb_ram.v:1]

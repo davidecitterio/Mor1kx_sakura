@@ -1,0 +1,5 @@
+0.4
+2016.2
+/home/davide/Documents/2016_postdoc_tools/mor1kx_/mor1kx-generic/src/uart16550-1.5.4/rtl/verilog/uart_defines.v,1477869735,verilog,,,,,,,,,,,
+/home/davide/Documents/2016_postdoc_tools/mor1kx_/mor1kx-generic/src/uart16550-1.5.4/rtl/verilog/uart_top.v,1477869735,verilog,,,/home/davide/Documents/2016_postdoc_tools/mor1kx_/mor1kx-generic/src/uart16550-1.5.4/rtl/verilog/uart_defines.v,,,,,,,,
+/home/davide/Documents/2016_postdoc_tools/mor1kx_/mor1kx-generic/src/uart16550-1.5.4/rtl/verilog/uart_wb.v,1477869735,verilog,,,/home/davide/Documents/2016_postdoc_tools/mor1kx_/mor1kx-generic/src/uart16550-1.5.4/rtl/verilog/uart_defines.v,,,,,,,,
