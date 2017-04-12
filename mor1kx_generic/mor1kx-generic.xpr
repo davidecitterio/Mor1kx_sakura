@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Product Version: Vivado v2016.1 (64-bit)              -->
+<!-- Product Version: Vivado v2016.2 (64-bit)              -->
 <!--                                                         -->
 <!-- Copyright 1986-2016 Xilinx, Inc. All Rights Reserved.   -->
 
-<Project Version="7" Minor="12" Path="/home/luca/mor1kx_es1_2017/mor1kx_generic/mor1kx-generic.xpr">
+<Project Version="7" Minor="14" Path="/home/davide/Documents/2016_postdoc_tools/mor1kx_es1_2017/mor1kx_generic/mor1kx-generic.xpr">
   <DefaultLaunch Dir="$PRUNDIR"/>
   <Configuration>
     <Option Name="Id" Val="bc0fd9fbaf974e21b0ad6b4b0bc7ba74"/>
@@ -24,7 +24,7 @@
     <Option Name="IPUserFilesDir" Val="$PPRDIR/../../prova_repo_mor1kx/mor1kx-generic.ip_user_files"/>
     <Option Name="IPStaticSourceDir" Val="$PPRDIR/mor1kx-generic.ip_user_files/ipstatic"/>
     <Option Name="EnableBDX" Val="FALSE"/>
-    <Option Name="WTXSimLaunchSim" Val="33"/>
+    <Option Name="WTXSimLaunchSim" Val="36"/>
     <Option Name="WTModelSimLaunchSim" Val="0"/>
     <Option Name="WTQuestaLaunchSim" Val="0"/>
     <Option Name="WTIesLaunchSim" Val="0"/>

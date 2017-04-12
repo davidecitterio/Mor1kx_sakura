@@ -4,7 +4,7 @@ module wb_ram
    //Memory parameters
    parameter depth = 256,
    parameter aw    = $clog2(depth),
-   parameter memfile = "../../../sram.vmem")
+   parameter memfile = "../../../../bench/sram.vmem")
   (input 	   wb_clk_i,
    input 	   wb_rst_i,
    
