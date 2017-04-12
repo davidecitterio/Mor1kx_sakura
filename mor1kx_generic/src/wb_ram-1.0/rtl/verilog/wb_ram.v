@@ -4,7 +4,7 @@ module wb_ram
    //Memory parameters
    parameter depth = 256,
    parameter aw    = $clog2(depth),
-   parameter memfile = "sram.vmem")
+   parameter memfile = "../../../sram.vmem")
   (input 	   wb_clk_i,
    input 	   wb_rst_i,
    
@@ -21,7 +21,7 @@ module wb_ram
    output 	   wb_err_o,
    output [dw-1:0] wb_dat_o);
 
-   `include "wb_common.v"
+   `include "../../../wb_common/wb_common.v"
    reg [aw-1:0] 	   adr_r;
 
    wire [aw-1:0] 	   next_adr;

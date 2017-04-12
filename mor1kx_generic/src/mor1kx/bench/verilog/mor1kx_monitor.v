@@ -41,10 +41,10 @@
 	`define GPR_SET(x, y) `CPU_INST.set_gpr(x, y)
 `endif
 
-`include "mor1kx-defines.v"
+`include "../../rtl/verilog/mor1kx-defines.v"
 
 // Pull in an ORPSoC-specific file
-`include "test-defines.v" // indicate if we should trace or not
+`include "../../../mor1kx-generic/bench/verilog/include/test-defines.v" // indicate if we should trace or not
 
 // OR1K ISA defines used in this file
 

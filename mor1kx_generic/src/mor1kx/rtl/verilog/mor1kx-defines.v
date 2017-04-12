@@ -18,7 +18,7 @@
 `define IS_IMMU		"NONE"
 `define IS_DMMU		"NONE"
 
-`define CPU_NAME	"PRONTO_ESPRESSO"
+`define CPU_NAME	"CAPPUCCINO"
 
 
 /* ORBIS32 opcodes - top 6 bits */

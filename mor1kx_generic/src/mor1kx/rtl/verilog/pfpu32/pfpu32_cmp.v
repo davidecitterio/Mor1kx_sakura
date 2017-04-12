@@ -39,7 +39,7 @@
 ////                                                             ////
 /////////////////////////////////////////////////////////////////////
 
-`include "mor1kx-defines.v"
+`include "../mor1kx-defines.v"
 
 /* completely combinatorial module */
 

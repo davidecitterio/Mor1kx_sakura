@@ -6,13 +6,13 @@ module orpsoc_tb;
    
    
    
-initial
+/*initial
    begin
    $dumpfile("out.vcd");
    $dumpvars(0,orpsoc_tb);
    //$dumpvars(0,orpsoc_tb.dut.mor1kx0.mor1kx_cpu);
    end
-
+*/
 //    ////////////////////////////////////////////////////////////////////////
 //    //
 //    // JTAG VPI interface

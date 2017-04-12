@@ -44,7 +44,7 @@
 // 0111 = reserved
 // 1xxx = comparison
 
-`include "mor1kx-defines.v"
+`include "../mor1kx-defines.v"
 
 module pfpu32_top
 #(

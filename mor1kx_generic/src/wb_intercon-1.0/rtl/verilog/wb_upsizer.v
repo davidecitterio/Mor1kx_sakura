@@ -31,7 +31,7 @@ module wb_upsizer
    input 			  wbm_err_i,
    input 			  wbm_rty_i);
 
-`include "wb_common.v"
+`include "../../../wb_common/wb_common.v"
    
    localparam SELW = DW_IN/8; //sel width
 

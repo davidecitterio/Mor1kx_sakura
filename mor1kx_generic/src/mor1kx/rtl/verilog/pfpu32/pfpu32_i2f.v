@@ -32,7 +32,7 @@
 ////                                                             ////
 /////////////////////////////////////////////////////////////////////
 
-`include "mor1kx-defines.v"
+`include "../mor1kx-defines.v"
 
 module pfpu32_i2f
 (

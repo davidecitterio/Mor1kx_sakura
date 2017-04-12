@@ -86,7 +86,7 @@ module wb_mux
     input [num_slaves-1:0]     wbs_err_i,
     input [num_slaves-1:0]     wbs_rty_i);
 
-`include "verilog_utils.vh"
+`include "../../../verilog_utils/verilog_utils.vh"
 
 ///////////////////////////////////////////////////////////////////////////////
 // Master/slave connection

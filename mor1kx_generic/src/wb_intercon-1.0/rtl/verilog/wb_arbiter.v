@@ -70,7 +70,7 @@ module wb_arbiter
    input 		       wbs_rty_i);
 
 
-`include "verilog_utils.vh"
+`include "../../../verilog_utils/verilog_utils.vh"
 
 ///////////////////////////////////////////////////////////////////////////////
 // Parameters
