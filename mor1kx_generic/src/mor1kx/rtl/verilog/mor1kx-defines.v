@@ -12,8 +12,8 @@
 
 ***************************************************************************** */
 
-`define IS_ICACHE	"NONE"
-`define IS_DCACHE	"NONE"
+`define IS_ICACHE	"ENABLED"
+`define IS_DCACHE	"ENABLED"
 
 `define IS_IMMU		"NONE"
 `define IS_DMMU		"NONE"
