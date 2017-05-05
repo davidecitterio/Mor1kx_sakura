@@ -6,7 +6,18 @@ module orpsoc_top
 		output tdo_pad_o,
 		input tms_pad_i,
 		input tck_pad_i,
-		input tdi_pad_i
+		input tdi_pad_i,
+		output [31:0] mem_adr,
+		output [31:0] mem_dat,
+		output [3:0] mem_sel,
+		output mem_we,
+		output mem_cyc,
+		output mem_stb,
+		output [2:0] mem_cti,
+		output [1:0] mem_bte,
+		input [31:0] mem_dat_i,
+		input mem_ack_i,
+		input mem_err_i
 );
 
 localparam wb_aw = 32;
@@ -21,7 +32,8 @@ wire wb_clk = wb_clk_i;
 wire wb_rst = wb_rst_i;
 
 `include "wb_intercon.vh"
-`include "../../../mor1kx/rtl/verilog/mor1kx-defines.v"
+`include "mor1kx-defines.v"
+`include "clog_func.vh"
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -202,29 +214,22 @@ mor1kx #(
 	.du_stall_o			(or1k_dbg_bp_o)
 );
 
-////////////////////////////////////////////////////////////////////////
-//
-// Generic main RAM
-//
-////////////////////////////////////////////////////////////////////////
-wb_ram #(
-	.depth	(MEM_SIZE/4)
-) wb_bfm_memory0 (
-	//Wishbone Master interface
-	.wb_clk_i	(wb_clk_i),
-	.wb_rst_i	(wb_rst_i),
-	.wb_adr_i	(wb_m2s_mem_adr[$clog2(MEM_SIZE)-3:0]),
-	.wb_dat_i	(wb_m2s_mem_dat),
-	.wb_sel_i	(wb_m2s_mem_sel),
-	.wb_we_i	(wb_m2s_mem_we),
-	.wb_cyc_i	(wb_m2s_mem_cyc),
-	.wb_stb_i	(wb_m2s_mem_stb),
-	.wb_cti_i	(wb_m2s_mem_cti),
-	.wb_bte_i	(wb_m2s_mem_bte),
-	.wb_dat_o	(wb_s2m_mem_dat),
-	.wb_ack_o	(wb_s2m_mem_ack),
-	.wb_err_o	(wb_s2m_mem_err)
-);
+
+// EXTERNAL WBRAM ASSIGNMENT
+assign mem_adr = wb_m2s_mem_adr[clog2(MEM_SIZE)-3:0];
+assign mem_dat = wb_m2s_mem_dat;
+assign mem_sel = wb_m2s_mem_sel;
+assign mem_we = wb_m2s_mem_we;
+assign mem_cyc = wb_m2s_mem_cyc;
+assign mem_stb = wb_m2s_mem_stb;
+assign mem_cti = wb_m2s_mem_cti;
+assign mem_bte = wb_m2s_mem_bte;
+assign wb_s2m_mem_dat = mem_dat_i;
+assign wb_s2m_mem_ack = mem_ack_i;
+assign wb_s2m_mem_err = mem_err_i;
+
+
+
    assign wb_s2m_mem_rty = 1'b0;
 
 wire uart_irq;
