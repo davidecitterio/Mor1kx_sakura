@@ -10,7 +10,7 @@ initial
    begin
    $dumpfile("out.vcd");
    $dumpvars(0,orpsoc_tb);
-   //$dumpvars(0,orpsoc_tb.dut.mor1kx0.mor1kx_cpu);
+   $dumpvars(0,orpsoc_tb.dut.mor1kx0.mor1kx_cpu);
    end
 
 //    ////////////////////////////////////////////////////////////////////////
@@ -19,23 +19,23 @@ initial
 //    //
 //    ////////////////////////////////////////////////////////////////////////
 //
-    wire tms;
-    wire tck;
-   wire tdi;
-    wire tdo;
+//   wire tms;
+//    wire tck;
+//   wire tdi;
+//    wire tdo;
 
-    reg enable_jtag_vpi;
-    initial enable_jtag_vpi = $test$plusargs("enable_jtag_vpi");
+//   reg enable_jtag_vpi;
+//    initial enable_jtag_vpi = $test$plusargs("enable_jtag_vpi");
 
-    jtag_vpi jtag_vpi0
-    (
-        .tms		(tms),
-        .tck		(tck),
-        .tdi		(tdi),
-        .tdo		(tdo),
-        .enable		(enable_jtag_vpi),
-        .init_done	(orpsoc_tb.dut.wb_rst)
-    );
+//    jtag_vpi jtag_vpi0
+//    (
+//        .tms		(tms),
+//        .tck		(tck),
+//        .tdi		(tdi),
+//        .tdo		(tdo),
+//        .enable		(enable_jtag_vpi),
+//        .init_done	(orpsoc_tb.dut.wb_rst)
+//    );
 
 
 //   ////////////////////////////////////////////////////////////////////////
@@ -103,7 +103,7 @@ wb_ram #(
 	//Wishbone Master interface
 	.wb_clk_i	(syst_clk),
 	.wb_rst_i	(syst_rst),
-	.wb_adr_i	(mem_adr[clog2(MEM_SIZE)-3:0]),
+	.wb_adr_i	(mem_adr),
 	.wb_dat_i	(mem_dat),
 	.wb_sel_i	(mem_sel),
 	.wb_we_i	(mem_we),

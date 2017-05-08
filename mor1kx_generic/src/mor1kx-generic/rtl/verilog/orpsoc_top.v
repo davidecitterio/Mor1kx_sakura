@@ -32,7 +32,7 @@ wire wb_clk = wb_clk_i;
 wire wb_rst = wb_rst_i;
 
 `include "wb_intercon.vh"
-`include "mor1kx-defines.v"
+`include "../../../mor1kx/rtl/verilog/mor1kx-defines.v"
 `include "clog_func.vh"
 
 ////////////////////////////////////////////////////////////////////////
