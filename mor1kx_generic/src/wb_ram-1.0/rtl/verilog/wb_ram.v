@@ -1,11 +1,13 @@
-`include "clog_func.vh"
 module wb_ram
- #(//Wishbone parameters
+ #(
+   //Wishbone parameters
    parameter dw = 32,
    //Memory parameters
    parameter depth = 256,
-   parameter aw    = clog2(depth),
+   parameter aw    = $clog2(depth),
+   //parameter memfile = "../../../../src/bench/hello.vmem")
    parameter memfile = "sram.vmem")
+
   (input 	   wb_clk_i,
    input 	   wb_rst_i,
    

@@ -1,3 +1,4 @@
+`include "clog_func.vh"
 `include "wb_common_params.v"
 function get_cycle_type;
    input [2:0] cti;
@@ -28,7 +29,7 @@ function [31:0] wb_next_adr;
    reg [31:0] 	 adr;
    integer 	 shift;
    begin
-      shift = $clog2(dw/8);
+      shift = clog2(dw/8);
       adr = adr_i >> shift;
       if (cti_i == CTI_INC_BURST)
 	case (bte_i)

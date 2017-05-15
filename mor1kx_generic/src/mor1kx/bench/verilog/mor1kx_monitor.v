@@ -15,6 +15,7 @@
  
 ***************************************************************************** */
 
+`include "../../rtl/verilog/mor1kx-defines.v"
 /* Configure these defines to point to the mor1kx instantiation */
 `ifndef MOR1KX_INST
  `define MOR1KX_INST dut.mor1kx0
@@ -25,10 +26,16 @@
 `ifndef CPU_WRAPPER
  `define CPU_WRAPPER `MOR1KX_INST.mor1kx_cpu
 `endif
-`define CPU_INST `CPU_WRAPPER.`MOR1KX_CPU_PIPELINE.mor1kx_cpu
 `define EXECUTE_STAGE_INSN `CPU_WRAPPER.monitor_execute_insn
-`define EXECUTE_STAGE_ADV `CPU_WRAPPER.monitor_execute_advance
-`define CPU_clk `CPU_WRAPPER.monitor_clk
+`ifdef SYNTHESIS
+	`define EXECUTE_STAGE_INSN orpsoc_tb.decode_insn_i
+	`define EXECUTE_STAGE_ADV orpsoc_tb.monitor_execute_advance
+	`define CPU_clk orpsoc_tb.syst_clk
+`else
+	`define CPU_INST `CPU_WRAPPER.`MOR1KX_CPU_PIPELINE.mor1kx_cpu
+	`define CPU_clk `CPU_WRAPPER.monitor_clk
+	`define EXECUTE_STAGE_ADV `CPU_WRAPPER.monitor_execute_advance
+`endif
 `define CPU_FLAG `CPU_WRAPPER.monitor_flag
 `define CPU_SR `CPU_WRAPPER.monitor_spr_sr
 `define EXECUTE_PC `CPU_WRAPPER.monitor_execute_pc
@@ -41,7 +48,6 @@
 	`define GPR_SET(x, y) `CPU_INST.set_gpr(x, y)
 `endif
 
-`include "../../rtl/verilog/mor1kx-defines.v"
 
 // Pull in an ORPSoC-specific file
 `include "../../../mor1kx-generic/bench/verilog/include/test-defines.v" // indicate if we should trace or not
@@ -66,7 +72,6 @@ module mor1kx_monitor #(parameter LOG_DIR= "../out") ();
   
    integer 	  f_aestime1 =0;
 
-
    wire clk;
 
    parameter OPTION_OPERAND_WIDTH = 32;
@@ -89,6 +94,7 @@ module mor1kx_monitor #(parameter LOG_DIR= "../out") ();
 	ftrace = $fopen({LOG_DIR,"/",`TEST_NAME_STRING,"-trace.log"});
 
 	f_aestime1 =$fopen({LOG_DIR,"/","aestime1.txt"});
+	$display("inizio monitor");
      end
   
    /* Simulation support code */
@@ -110,14 +116,15 @@ module mor1kx_monitor #(parameter LOG_DIR= "../out") ();
       
       cycle_counter = cycle_counter + 1;
       
-      if ( `EXECUTE_STAGE_ADV)
-	begin
+     // if ( `EXECUTE_STAGE_ADV)
+	//begin
 	  insns = insns + 1;
 	  execute_insn = `EXECUTE_STAGE_INSN;
-
-	   if(TRACE_ENABLE)
-	     mor1k_trace_print(execute_insn, `CPU_SR, `EXECUTE_PC, `CPU_FLAG);
 	  
+
+	   /*if(TRACE_ENABLE)
+	     mor1k_trace_print(execute_insn, `CPU_SR, `EXECUTE_PC, `CPU_FLAG);
+	  */
 	  // Check instructions for simulation controls
 	  if (execute_insn == 32'h15_00_00_01)
 	    begin
@@ -138,6 +145,9 @@ module mor1kx_monitor #(parameter LOG_DIR= "../out") ();
 		   $fwrite(f_aestime1,"%c",`GPR_GET(3));
 		   $fflush();
 	       $fdisplay(fgeneral, "%0t: l.nop putc (%c)", $time,`GPR_GET(3));
+	     `ifdef SYNTHESIS
+	       $display("sim_putc");
+	     `endif
 	    end
 	  if (execute_insn == 32'h15_00_00_05)
 	    begin
@@ -191,7 +201,7 @@ module mor1kx_monitor #(parameter LOG_DIR= "../out") ();
 	       
 	    end
 	  
-       end // if (`EXECUTE_STAGE_ADV)
+       //end // if (`EXECUTE_STAGE_ADV)
    end
    
    task mor1k_trace_print;
