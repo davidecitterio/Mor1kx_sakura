@@ -22,7 +22,11 @@ module orpsoc_top
 		output [1:0] wb_m2s_mem_bte_sim,
 		input [31:0] wb_s2m_mem_dat_sim,
 		input wb_s2m_mem_ack_sim,
-		input wb_s2m_mem_err_sim
+		input wb_s2m_mem_err_sim,
+
+		input [7:0] hostctrl_dat,
+		input hostctrl_done,
+		output hostctrl_ack
 );
 
 localparam wb_aw = 32;
@@ -146,6 +150,34 @@ adbg_top dbg_if0 (
 	.wb_bte_o	(wb_m2s_dbg_bte)
 );
 
+
+////////////////////////////////////////////////////////////////////////
+//
+// HOST CONTROLLER
+//
+////////////////////////////////////////////////////////////////////////
+
+wire hostctrl_cpu_rst;
+
+host_ctrl host0(
+	.clk_i 	(wb_clk),
+	.rst_i 	(wb_rst),
+	.cpu_rst(hostctrl_cpu_rst),
+	.data_i	(hostctrl_dat),
+	.done_i	(hostctrl_done),
+	.ack_o	(hostctrl_ack),
+	.wb_adr	(wb_m2s_hostctrl_adr),
+	.wb_dat	(wb_m2s_hostctrlg_dat),
+	.wb_ack	(wb_s2m_hostctrl_ack),
+	.wb_cyc	(wb_m2s_hostctrl_cyc),
+	.wb_stb	(wb_m2s_hostctrl_stb),
+	.wb_sel	(wb_m2s_hostctrl_sel),
+	.wb_we	(wb_m2s_hostctrl_we),
+	.wb_cti	(wb_m2s_hostctrl_cti),
+	.wb_bte	(wb_m2s_hostctrl_bte)
+);
+
+
 ////////////////////////////////////////////////////////////////////////
 //
 // mor1kx cpu
@@ -157,7 +189,7 @@ wire		or1k_clk;
 wire		or1k_rst;
 
 assign or1k_clk = wb_clk;
-assign or1k_rst = wb_rst | or1k_dbg_rst;
+assign or1k_rst = wb_rst | or1k_dbg_rst | hostctrl_cpu_rst;
 
 mor1kx #(
 	.FEATURE_DEBUGUNIT			("ENABLED"),
