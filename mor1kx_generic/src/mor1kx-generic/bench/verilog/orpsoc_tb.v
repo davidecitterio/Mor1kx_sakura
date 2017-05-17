@@ -76,6 +76,49 @@ module orpsoc_tb;
    always #10 syst_clk <= ~syst_clk;
    initial #100 syst_rst <= 0;
 
+
+
+   ////////////////////////////////////////////////////////////////////////
+   //
+   // Pump data into memory
+   //
+   ////////////////////////////////////////////////////////////////////////
+	
+	wire [31:0] sram_data;
+	wire sram_ack;
+	wire sram_done;
+
+	reg done = 0;
+	reg ack;
+	reg data;
+
+	integer               sram    ; // file handler
+	char               scan    ; // file handler
+	logic   signed [21:0] captured_data;
+	`define NULL 0    
+
+	initial begin
+	  sram = $fopen("hello.sram", "r");
+	  if (sram == NULL) begin
+	    $display("file handle was NULL");
+	    $finish;
+	  end
+	end
+
+	always @(posedge clk) begin
+	  scan = $fscanf(sram, "%c", captured_data); 
+	  if (!$feof(sram)) begin
+	    //LEGGO E INVIO 8 BIT ALLA VOLTA
+	    //ASPETTO ACK
+
+	    if ($feof(sram)) done <= 1;
+	  end
+	end
+	
+	assign sram_data = data;
+	assign sram_done = done;
+
+
    ////////////////////////////////////////////////////////////////////////
    //
    // mor1kx monitor
@@ -128,7 +171,10 @@ module orpsoc_tb;
       .wb_m2s_mem_bte_sim (wb_m2s_mem_bte_sim),
       .wb_s2m_mem_dat_sim (wb_s2m_mem_dat_sim),
       .wb_s2m_mem_ack_sim (wb_s2m_mem_ack_sim),
-      .wb_s2m_mem_err_sim (wb_s2m_mem_err_sim)
+      .wb_s2m_mem_err_sim (wb_s2m_mem_err_sim),
+      .hostctrl_data (sram_data),
+      .hostctrl_done (sram_done),
+      .hostctrl_ack  (sram_ack)
 );
 
    ////////////////////////////////////////////////////////////////////////
@@ -154,4 +200,7 @@ module orpsoc_tb;
 	.wb_ack_o	(wb_s2m_mem_ack_sim),
 	.wb_err_o	(wb_s2m_mem_err_sim)
    );
+
+
+  
 endmodule

@@ -20,7 +20,7 @@ module host_ctrl
 	 output [1:0] wb_bte
 	);
 
-	localparam IDLE=3'b000, WADDR=3'b001, WDATA=3'b010, WBTX=3'b011, WRAM=3'b100;
+	localparam IDLE=3'b000, WADDR=3'b001, WDATA=3'b010, WBTX=3'b011, WRAM=3'b100, WACK=3'B101;
         localparam ZERO=2'b00, ONE=2'b01, TWO=2'b10, THREE=2'b11;
 
 	reg [1:0] ss = IDLE;
@@ -91,18 +91,20 @@ module host_ctrl
 		    end
 
 	      WRAM: begin
-		      if (wb_ack_mem && !done_i) 
-			 begin 
-			   ss <= WADDR;
- 			   ctrl_ack <= 1;
-			 end
-		      else if (wb_ack_mem && done_i) 
-			 begin 
-			   ss <= IDLE;
- 			   ctrl_ack <= 1;
-			   ctrl_cpu_rst <= 0;
-			 end
+		      if (wb_ack_mem) 
+			 ss <= WACK;
 		    end
+
+	      WACK: if (!done_i) begin 
+			ss <= WADDR;
+ 			ctrl_ack <= 1;
+		    end
+		    else if (done_i) begin 
+			ss <= IDLE;
+ 			ctrl_ack <= 1;
+			ctrl_cpu_rst <= 0;
+		    end
+	
 	    endcase 
 	  end 
 	end
