@@ -23,8 +23,9 @@ module host_ctrl
 	localparam IDLE=3'b000, WADDR=3'b001, WDATA=3'b010, WBTX=3'b011, WRAM=3'b100, WACK=3'B101;
         localparam ZERO=2'b00, ONE=2'b01, TWO=2'b10, THREE=2'b11;
 
-	reg [1:0] ss = IDLE;
-	reg [1:0] count = ZERO;
+	reg [3:0] ss = IDLE;
+	reg [1:0] countAddress = ZERO;
+        reg [1:0] countData = ZERO;
         reg ctrl_ack;
 	reg ctrl_cpu_rst = 0;
 	reg [31:0] address_ctrl;
@@ -38,6 +39,7 @@ module host_ctrl
 	reg [2:0] cti;
 	reg [1:0] bte;
 
+
 	always@(posedge clk_i) begin
 	  if(rst_i) ss<=0;
 	  else
@@ -46,37 +48,54 @@ module host_ctrl
 	    cyc <= 0;
 	    case(ss)
 	      IDLE:  begin
-		       if(!done_i) ss<=WADDR; 
-		       counter <= 4'b0000;
+		       if(!done_i) ss<=WADDR;
 		       ctrl_cpu_rst <= 1;
 		     end
 	            
-	      WADDR: begin
-			address[31:8] <= 0;
-			address[7:0] <= data_i;
-			ss <= WDATA;
-		     end
-			 
-	      WDATA: case (count)
+	      WADDR: case (countAddress)
 			ZERO: begin
-			        data_ctrl[7:0] <= data_i;
-				count <= ONE;
+			        address_ctrl[7:0] <= data_i;
+				countAddress <= ONE;
+			      end
+			
+			ONE:  begin
+			        address_ctrl[15:8] <= data_i;
+				countAddress <= TWO;
+			      end
+
+			TWO:  begin
+			        address_ctrl[23:16] <= data_i;
+				countAddress <= THREE;
+			      end
+
+			THREE:begin
+			        address_ctrl[31:24] <= data_i;
+				ss<= WBDATA;
+				countAddress <= ZERO;
+			      end
+		     endcase
+
+			 
+	      WDATA: case (countData)
+			ZERO: begin
+			        data_ctrl[31:0] <= data_i;
+				countData <= ONE;
 			      end
 			
 			ONE:  begin
 			        data_ctrl[15:8] <= data_i;
-				count <= TWO;
+				countData <= TWO;
 			      end
 
 			TWO:  begin
 			        data_ctrl[23:16] <= data_i;
-				count <= THREE;
+				countData <= THREE;
 			      end
 
 			THREE:begin
 			        data_ctrl[31:24] <= data_i;
 				ss<= WBTX;
-				count <= ZERO;
+				countData <= ZERO;
 			      end
 		     endcase
 
@@ -84,13 +103,15 @@ module host_ctrl
 		     we <= 1;
 		     cyc <= 1;
 		     stb <=1;
-		     sel <= 4'b0001;
+		     sel <= 4'b1111;
 		     address <= address_ctrl;
 		     data <= data_ctrl;
 		     ss <=WRAM;
 		    end
 
 	      WRAM: begin
+		      cyc <= 0; //non trasmetto niente
+		      stb <= 0; // segnali non stabili
 		      if (wb_ack_mem) 
 			 ss <= WACK;
 		    end
@@ -99,7 +120,7 @@ module host_ctrl
 			ss <= WADDR;
  			ctrl_ack <= 1;
 		    end
-		    else if (done_i) begin 
+		    else begin 
 			ss <= IDLE;
  			ctrl_ack <= 1;
 			ctrl_cpu_rst <= 0;

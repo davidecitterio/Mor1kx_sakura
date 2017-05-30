@@ -24,7 +24,7 @@ module orpsoc_top
 		input wb_s2m_mem_ack_sim,
 		input wb_s2m_mem_err_sim,
 
-		input [7:0] hostctrl_dat,
+		input [31:0] hostctrl_data,
 		input hostctrl_done,
 		output hostctrl_ack
 );
@@ -162,8 +162,8 @@ wire hostctrl_cpu_rst;
 host_ctrl host0(
 	.clk_i 	(wb_clk),
 	.rst_i 	(wb_rst),
-	.cpu_rst(hostctrl_cpu_rst),
-	.data_i	(hostctrl_dat),
+	.hostctrl_cpu_rst(hostctrl_cpu_rst),
+	.data_i	(hostctrl_data),
 	.done_i	(hostctrl_done),
 	.ack_o	(hostctrl_ack),
 	.wb_adr	(wb_m2s_hostctrl_adr),

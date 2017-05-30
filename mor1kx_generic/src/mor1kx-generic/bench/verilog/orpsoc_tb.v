@@ -84,7 +84,7 @@ module orpsoc_tb;
    //
    ////////////////////////////////////////////////////////////////////////
 	
-	wire [31:0] sram_data;
+	wire [7:0] sram_data;
 	wire sram_ack;
 	wire sram_done;
 
@@ -92,27 +92,80 @@ module orpsoc_tb;
 	reg ack;
 	reg data;
 
-	integer               sram    ; // file handler
-	char               scan    ; // file handler
-	logic   signed [21:0] captured_data;
-	`define NULL 0    
+	localparam depth = MEM_SIZE/4;
+	
+	reg [31:0] address = 32'b00;  // contatore address da passare a host controller
+        reg [31:0] counter = 30'b00; //contatore address per accedere a dati di readmemh
 
+	reg [31:0]  mem [0:depth-1];
+	  
+	localparam ZERO=2'b00, ONE=2'b01, TWO=2'b10, THREE=2'b11;
+	reg[1:0] ss = ZERO;
+	reg sendData = 0; // 0 address, 1 data
+	
 	initial begin
-	  sram = $fopen("hello.sram", "r");
-	  if (sram == NULL) begin
-	    $display("file handle was NULL");
-	    $finish;
-	  end
-	end
+	  $readmemh("sram.vmem", mem);
+	  done <= 0;
+ 	end
 
-	always @(posedge clk) begin
-	  scan = $fscanf(sram, "%c", captured_data); 
-	  if (!$feof(sram)) begin
-	    //LEGGO E INVIO 8 BIT ALLA VOLTA
-	    //ASPETTO ACK
+	
+	always @(posedge syst_clk) begin
+	 if (!done) begin
+	    if (!sendData) begin
+		   case (ss)
+		    ZERO: begin
+			   sram_data <= address[7:0];
+			   ss <= ONE;
+			  end
 
-	    if ($feof(sram)) done <= 1;
-	  end
+		    ONE:  begin
+			   sram_data <= address[15:8];
+			   ss <= TWO;
+			  end
+
+		    TWO:  begin
+			   sram_data <= address[23:16];
+			   ss <= THREE;
+			   
+			  end
+
+		    THREE:begin
+			   sram_data <= address[31:24];
+			   ss <= ZERO;
+			   sendData = 1;
+			   address <= address + 1; //incremento e mi porto all'address successivo
+			  end
+		   endcase
+	    end
+	    else if (sendData) begin
+		   case (ss)
+		    ZERO: begin
+			   sram_data <= mem[counter][7:0];
+			   ss <= ONE;
+			  end
+
+		    ONE:  begin
+			   sram_data <= mem[counter][15:8];
+			   ss <= TWO;
+			  end
+
+		    TWO:  begin
+			   sram_data <= mem[counter][23:16];
+			   ss <= THREE;
+			  end
+
+		    THREE:begin
+			   sram_data <= mem[counter][31:24];
+			   ss <= ZERO;
+			   sendData=0;
+			   counter = counter + 1; // passo al successivo dato in memoria da trasmettere
+			  end
+		   endcase
+	    end
+	  
+          if (counter == (depth-1))
+	    done <= 1;
+         end
 	end
 	
 	assign sram_data = data;
@@ -142,6 +195,7 @@ module orpsoc_tb;
    wire [31:0] wb_s2m_mem_dat_sim;
    wire wb_s2m_mem_ack_sim;
    wire wb_s2m_mem_err_sim;
+
  `ifdef SYNTHESIS 
    wire [`OR1K_INSN_WIDTH-1:0] decode_insn_i;
  `endif
