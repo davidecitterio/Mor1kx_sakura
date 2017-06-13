@@ -89,42 +89,87 @@ module orpsoc_tb;
 	wire sram_done;
 
 	reg done = 0;
+	reg ack;
+	reg data;
 
 	localparam depth = MEM_SIZE/4;
 
+	reg [31:0] address = 32'b00;  // contatore address da passare a host controller
+  reg [31:0] counter = 30'b00; //contatore address per accedere a dati di readmemh
 	reg [31:0] mem [0:depth-1]; //variabile memorizzazione readmemh
 
-	reg [31:0] tmp_address, tmp_data;
+	localparam ZERO=2'b00, ONE=2'b01, TWO=2'b10, THREE=2'b11;
+	reg[1:0] ss = ZERO;
+	reg sendData = 0; // 0 address, 1 data
 
-  reg i,j;
-
-  //read from sram
 	initial begin
 	  $readmemh("sram.vmem", mem);
 	  done <= 0;
  	end
 
-  //send data to host ctrl
-  initial begin
-    for (i = 0; done!=0; i= i+4)
-      for (j = 0; j<=3; j = j+1)
-        begin
-          tmp_address = (i<<2)+j;
-          tmp_data = mem[tmp_address];
 
-          for (k=0, h=7; h<=31; k = k+8, h = h+8)
-             sram_data = tmp_address[h:k];
-          for (k=0, h=7; h<=31; k = k+8, h = h+8)
-             sram_data = tmp_data[h:k];
+	always @(posedge syst_clk) begin
+	 if (!done) begin
+	    if (!sendData) begin
+		   case (ss)
+		    ZERO: begin
+			   sram_data <= address[7:0];
+			   ss <= ONE;
+			  end
 
-          if (i == depht)
-             done = 1;
+		    ONE:  begin
+			   sram_data <= address[15:8];
+			   ss <= TWO;
+			  end
 
-          while (sram_ack == 0);
-        end
-  end
+		    TWO:  begin
+			   sram_data <= address[23:16];
+			   ss <= THREE;
 
-  assign sram_done <= done;
+			  end
+
+		    THREE:begin
+			   sram_data <= address[31:24];
+			   ss <= ZERO;
+			   sendData = 1;
+			   address <= address + 1; //incremento e mi porto all'address successivo
+			  end
+		   endcase
+	    end
+	    else if (sendData) begin
+		   case (ss)
+		    ZERO: begin
+			   sram_data <= mem[counter][7:0];
+			   ss <= ONE;
+			  end
+
+		    ONE:  begin
+			   sram_data <= mem[counter][15:8];
+			   ss <= TWO;
+			  end
+
+		    TWO:  begin
+			   sram_data <= mem[counter][23:16];
+			   ss <= THREE;
+			  end
+
+		    THREE:begin
+			   sram_data <= mem[counter][31:24];
+			   ss <= ZERO;
+			   sendData=0;
+			   counter = counter + 1; // passo al successivo dato in memoria da trasmettere
+			  end
+		   endcase
+	    end
+
+          if (counter == (depth-1))
+	    done <= 1;
+         end
+	end
+
+	assign sram_data = data;
+	assign sram_done = done;
+
 
    ////////////////////////////////////////////////////////////////////////
    //

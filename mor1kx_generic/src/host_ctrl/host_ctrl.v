@@ -1,4 +1,4 @@
-module host_ctrl 
+module host_ctrl
 	#(parameter packet_size=8,
 	  parameter address_size = 8,
           parameter data_size = 32 )
@@ -48,84 +48,84 @@ module host_ctrl
 	    cyc <= 0;
 	    case(ss)
 	      IDLE:  begin
-		       if(!done_i) ss<=WADDR;
-		       ctrl_cpu_rst <= 1;
-		     end
+		       			if(!done_i) ss<=WADDR;
+		       			ctrl_cpu_rst <= 1;
+		     			 end
 	            
 	      WADDR: case (countAddress)
-			ZERO: begin
-			        address_ctrl[7:0] <= data_i;
-				countAddress <= ONE;
-			      end
-			
-			ONE:  begin
-			        address_ctrl[15:8] <= data_i;
-				countAddress <= TWO;
-			      end
+								ZERO: begin
+								        address_ctrl[7:0] <= data_i;
+												countAddress <= ONE;
+								      end
 
-			TWO:  begin
-			        address_ctrl[23:16] <= data_i;
-				countAddress <= THREE;
-			      end
+								ONE:  begin
+								        address_ctrl[15:8] <= data_i;
+												countAddress <= TWO;
+								      end
 
-			THREE:begin
-			        address_ctrl[31:24] <= data_i;
-				ss<= WBDATA;
-				countAddress <= ZERO;
-			      end
-		     endcase
+								TWO:  begin
+								        address_ctrl[23:16] <= data_i;
+												countAddress <= THREE;
+								      end
+
+								THREE:begin
+								        address_ctrl[31:24] <= data_i;
+												ss<= WBDATA;
+												countAddress <= ZERO;
+								      end
+		     			 endcase
 
 			 
 	      WDATA: case (countData)
-			ZERO: begin
-			        data_ctrl[31:0] <= data_i;
-				countData <= ONE;
-			      end
-			
-			ONE:  begin
-			        data_ctrl[15:8] <= data_i;
-				countData <= TWO;
-			      end
+								ZERO: begin
+								        data_ctrl[31:0] <= data_i;
+												countData <= ONE;
+								      end
 
-			TWO:  begin
-			        data_ctrl[23:16] <= data_i;
-				countData <= THREE;
-			      end
+								ONE:  begin
+								        data_ctrl[15:8] <= data_i;
+												countData <= TWO;
+								      end
 
-			THREE:begin
-			        data_ctrl[31:24] <= data_i;
-				ss<= WBTX;
-				countData <= ZERO;
-			      end
-		     endcase
+								TWO:  begin
+								        data_ctrl[23:16] <= data_i;
+												countData <= THREE;
+								      end
+
+								THREE:begin
+								        data_ctrl[31:24] <= data_i;
+												ss<= WBTX;
+												countData <= ZERO;
+								      end
+					     endcase
 
 	      WBTX: begin
-		     we <= 1;
-		     cyc <= 1;
-		     stb <=1;
-		     sel <= 4'b1111;
-		     address <= address_ctrl;
-		     data <= data_ctrl;
-		     ss <=WRAM;
-		    end
+					     we <= 1;
+					     cyc <= 1;
+					     stb <=1;
+					     sel <= 4'b1111;
+					     address <= address_ctrl;
+					     data <= data_ctrl;
+					     ss <=WRAM;
+		    	 		end
 
 	      WRAM: begin
-		      cyc <= 0; //non trasmetto niente
-		      stb <= 0; // segnali non stabili
-		      if (wb_ack_mem) 
-			 ss <= WACK;
-		    end
+					      cyc <= 0; //non trasmetto niente
+					      stb <= 0; // segnali non stabili
+					      if (wb_ack_mem)
+						 			ss <= WACK;
+		    			end
 
-	      WACK: if (!done_i) begin 
-			ss <= WADDR;
- 			ctrl_ack <= 1;
-		    end
-		    else begin 
-			ss <= IDLE;
- 			ctrl_ack <= 1;
-			ctrl_cpu_rst <= 0;
-		    end
-	
+	      WACK: if (!done_i) begin
+								ss <= WADDR;
+					 			ctrl_ack <= 1;
+							 end
+							 else begin
+								ss <= IDLE;
+					 			ctrl_ack <= 1;
+								ctrl_cpu_rst <= 0;
+		    			end
+
 	    endcase 
 	  end 
 	end
@@ -136,12 +136,12 @@ module host_ctrl
 
 	assign wb_adr = address;
 	assign wb_dat = data;
-   	assign wb_we  = we;
-   	assign wb_sel = sel;
+  assign wb_we  = we;
+  assign wb_sel = sel;
 	assign wb_cyc = cyc;
 	assign wb_stb = stb;
-   	assign wb_cti = 3'h0;
-   	assign wb_bte = 2'h0;
+  assign wb_cti = 3'h0;
+  assign wb_bte = 2'h0;
 
 
 endmodule
