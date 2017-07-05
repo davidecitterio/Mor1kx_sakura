@@ -8,9 +8,15 @@ module wb_ram_generic
    input [$clog2(depth)-1:0] 	 waddr,
    input [$clog2(depth)-1:0] 	 raddr,
    output reg [31:0] dout);
+	
+	localparam MEM_SIZE = 32'h02000000;
+	localparam size = MEM_SIZE / 4;
+	
+	
 
-   reg [31:0] 	 mem [0:depth-1] /* verilator public */;
-   
+   reg [31:0] 	 mem [0:size-1] /* verilator public */;
+   reg i;
+
    always @(posedge clk) begin
       if (we[0]) mem[waddr][7:0]   <= din[7:0];
       if (we[1]) mem[waddr][15:8]  <= din[15:8];
@@ -18,12 +24,16 @@ module wb_ram_generic
       if (we[3]) mem[waddr][31:24] <= din[31:24];
       dout <= mem[raddr];
    end
+	
 
    generate
       initial
 	if(memfile != "") begin
 	   $display("Preloading %m from %s", memfile);
 	   $readmemh(memfile, mem);
+		
+		//$display("Addr: %d, Data: %h\n",64,mem[64]);
+		
 	end
    endgenerate
 

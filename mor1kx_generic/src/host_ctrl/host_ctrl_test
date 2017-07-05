@@ -1,0 +1,39 @@
+
+
+             case (countData)
+             begin
+                           ZERO: begin
+                                   if (valid_i) begin
+                                     data_ctrl[31:0] <= data_i[7:0];
+                                     countData <= ONE;
+                                     ack_data <= 1;
+                                   end
+                                 end
+
+                           ONE:  begin
+                                   if (valid_i) begin
+                                     data_ctrl[15:8] <= data_i[7:0];
+                                     countData <= TWO;
+                                     ack_data <= 1;
+                                   end
+                                 end
+
+                           TWO:  begin
+                                   if (valid_i) begin
+                                     data_ctrl[23:16] <= data_i[7:0];
+                                     countData <= THREE;
+                                     ack_data <= 1;
+                                   end
+                                 end
+
+                           THREE:begin
+                                   if (valid_i) begin
+                                     data_ctrl[31:24] <= data_i[7:0];
+                                     //ss<= WBTX;
+                                     ss<= WADDR;
+                                     countData <= ZERO;
+                                     ack_data <= 1;
+                                   end
+                                 end
+                  end
+                endcase

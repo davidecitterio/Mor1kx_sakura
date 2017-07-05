@@ -23,11 +23,12 @@ module orpsoc_top
 		input [31:0] wb_s2m_mem_dat_sim,
 		input wb_s2m_mem_ack_sim,
 		input wb_s2m_mem_err_sim,
-
-		input [31:0] hostctrl_data,
-		input hostctrl_done,
-		output hostctrl_ack
-);
+    //host_ctrl in/out
+		input [7:0] hostctrl_data,
+		input  hostctrl_done,
+		output hostctrl_ack,
+    output hostctrl_ack_data,
+    input  hostctrl_valid  );
 
 localparam wb_aw = 32;
 localparam wb_dw = 32;
@@ -48,47 +49,7 @@ wire wb_rst = wb_rst_i;
 `endif
 
 
-////////////////////////////////////////////////////////////////////////
-//
-// GENERIC JTAG TAP
-//
-////////////////////////////////////////////////////////////////////////
 
-wire dbg_if_select;
-wire dbg_if_tdo;
-wire jtag_tap_tdo;
-wire jtag_tap_shift_dr;
-wire jtag_tap_pause_dr;
-wire jtag_tap_update_dr;
-wire jtag_tap_capture_dr;
-/*
-tap_top jtag_tap0 (
-	.tdo_pad_o			(tdo_pad_o),
-	.tms_pad_i			(tms_pad_i),
-	.tck_pad_i			(tck_pad_i),
-	.trst_pad_i			(wb_rst),
-	.tdi_pad_i			(tdi_pad_i),
-
-	.tdo_padoe_o			(),
-
-	.tdo_o				(jtag_tap_tdo),
-
-	.shift_dr_o			(jtag_tap_shift_dr),
-	.pause_dr_o			(jtag_tap_pause_dr),
-	.update_dr_o			(jtag_tap_update_dr),
-	.capture_dr_o			(jtag_tap_capture_dr),
-
-	.extest_select_o		(),
-	.sample_preload_select_o	(),
-	.mbist_select_o			(),
-	.debug_select_o			(dbg_if_select),
-
-
-	.bs_chain_tdi_i			(1'b0),
-	.mbist_tdi_i			(1'b0),
-	.debug_tdi_i			(dbg_if_tdo)
-);
-*/
 ////////////////////////////////////////////////////////////////////////
 //
 // Debug Interface
@@ -163,18 +124,20 @@ host_ctrl host0(
 	.clk_i 	(wb_clk),
 	.rst_i 	(wb_rst),
 	.hostctrl_cpu_rst(hostctrl_cpu_rst),
-	.data_i	(hostctrl_data),
-	.done_i	(hostctrl_done),
-	.ack_o	(hostctrl_ack),
-	.wb_adr	(wb_m2s_hostctrl_adr),
-	.wb_dat	(wb_m2s_hostctrlg_dat),
-	.wb_ack	(wb_s2m_hostctrl_ack),
-	.wb_cyc	(wb_m2s_hostctrl_cyc),
-	.wb_stb	(wb_m2s_hostctrl_stb),
-	.wb_sel	(wb_m2s_hostctrl_sel),
-	.wb_we	(wb_m2s_hostctrl_we),
-	.wb_cti	(wb_m2s_hostctrl_cti),
-	.wb_bte	(wb_m2s_hostctrl_bte)
+	.data_i	(hostctrl_data), //8 bit alla volta
+	.done_i	(hostctrl_done), //finito di mandare dati
+	.ack_o	(hostctrl_ack), //ack scritto in memoria
+   .ack_data (hostctrl_ack_data), //ack ricevuti 8 bit
+   .valid_i (hostctrl_valid) //ho inviato una parola valida
+	//.wb_adr	(0),//(wb_m2s_hostctrl_adr),
+	//.wb_dat	(0),//(wb_m2s_hostctrl_dat),
+	//.wb_ack	(0),//(wb_s2m_hostctrl_ack),
+	//.wb_cyc	(0),//(wb_m2s_hostctrl_cyc),
+	//.wb_stb	(0),//(wb_m2s_hostctrl_stb),
+	//.wb_sel	(0),//(wb_m2s_hostctrl_sel),
+	//.wb_we	(0),//(wb_m2s_hostctrl_we),
+	//.wb_cti	(0),//(wb_m2s_hostctrl_cti),
+	//.wb_bte	(0)//(wb_m2s_hostctrl_bte)
 );
 
 
@@ -189,7 +152,7 @@ wire		or1k_clk;
 wire		or1k_rst;
 
 assign or1k_clk = wb_clk;
-assign or1k_rst = wb_rst | or1k_dbg_rst | hostctrl_cpu_rst;
+assign or1k_rst = wb_rst | or1k_dbg_rst ;
 
 mor1kx #(
 	.FEATURE_DEBUGUNIT			("ENABLED"),
@@ -283,16 +246,16 @@ mor1kx #(
 );*/
 
    assign wb_m2s_mem_adr_sim = wb_m2s_mem_adr;
-   assign wb_m2s_mem_dat_sim = wb_m2s_mem_dat; 
-   assign wb_m2s_mem_sel_sim = wb_m2s_mem_sel; 
-   assign wb_m2s_mem_we_sim = wb_m2s_mem_we; 
-   assign wb_m2s_mem_cyc_sim = wb_m2s_mem_cyc; 
-   assign wb_m2s_mem_stb_sim = wb_m2s_mem_stb; 
-   assign wb_m2s_mem_cti_sim = wb_m2s_mem_cti; 
-   assign wb_m2s_mem_bte_sim = wb_m2s_mem_bte; 
-   assign wb_s2m_mem_dat = wb_s2m_mem_dat_sim; 
-   assign wb_s2m_mem_ack = wb_s2m_mem_ack_sim; 
-   assign wb_s2m_mem_err = wb_s2m_mem_err_sim; 
+   assign wb_m2s_mem_dat_sim = wb_m2s_mem_dat;
+   assign wb_m2s_mem_sel_sim = wb_m2s_mem_sel;
+   assign wb_m2s_mem_we_sim = wb_m2s_mem_we;
+   assign wb_m2s_mem_cyc_sim = wb_m2s_mem_cyc;
+   assign wb_m2s_mem_stb_sim = wb_m2s_mem_stb;
+   assign wb_m2s_mem_cti_sim = wb_m2s_mem_cti;
+   assign wb_m2s_mem_bte_sim = wb_m2s_mem_bte;
+   assign wb_s2m_mem_dat = wb_s2m_mem_dat_sim;
+   assign wb_s2m_mem_ack = wb_s2m_mem_ack_sim;
+   assign wb_s2m_mem_err = wb_s2m_mem_err_sim;
    assign wb_s2m_mem_rty = 1'b0;
 
 wire uart_irq;

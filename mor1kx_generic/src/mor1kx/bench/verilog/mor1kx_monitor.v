@@ -94,7 +94,6 @@ module mor1kx_monitor #(parameter LOG_DIR= "../out") ();
 	ftrace = $fopen({LOG_DIR,"/",`TEST_NAME_STRING,"-trace.log"});
 
 	f_aestime1 =$fopen({LOG_DIR,"/","aestime1.txt"});
-	$display("inizio monitor");
      end
   
    /* Simulation support code */
