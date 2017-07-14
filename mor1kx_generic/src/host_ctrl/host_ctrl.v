@@ -52,8 +52,11 @@ module host_ctrl
 	 assign wb_bte = 2'h0;
 	 
 	 always @ (posedge clk_i) begin
+		if (valid_i) begin
 	   $display("host ctrl received %h\n", data_i);
-		 ack_data<=1;
+		 ack_data <= 1;
+		 ctrl_ack <= 1;
+		 end
 	 end
 	 
 /*

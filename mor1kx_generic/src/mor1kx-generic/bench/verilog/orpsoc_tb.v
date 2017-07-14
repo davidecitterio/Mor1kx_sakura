@@ -5,10 +5,6 @@ module orpsoc_tb;
    //localparam MEM_SIZE = 32'h00010000; //130 KB
    vlog_tb_utils vlog_tb_utils0();
 
-
-   initial begin
-	$display ("ciaone ne");
-   end
    ////////////////////////////////////////////////////////////////////////
    //
    // Clock and reset generation
@@ -98,55 +94,129 @@ wire sram_done;
 wire sram_valid;
 
 reg done = 0;
-reg [7:0] data = 8'b00000001;;
+reg [7:0] data = 8'b00000000;
 reg valid = 0;
 
 localparam depth = MEM_SIZE/4;
 
 reg [31:0] mem [0:depth-1]; //variabile memorizzazione readmemh
 
-reg [31:0] tmp_address, tmp_data;
+reg [31:0] tmp_address= 0, tmp_data=0;
 
-reg i,j, k ,h;
+reg [31:0]  i = 0,j = 0, k = 0 ,h = 0;
 
-initial begin
-      $display("Start to send data to host_ctrl.\n");
-		data = data + 1;
-		for (i = 0; !done; i= i+4)
+reg sendAddress = 0, sendData = 0, ackArrived = 0, wait_ack = 0, ackDataArrived = 0;
+reg sendAddress_start = 0, sendData_start = 0;
+
+always @ (posedge syst_clk) begin
+		if ( i<4 ) //for (i = 0; !done; i= i+4)
 		 begin
-			for (j = 0; j<=3; j = j+1)
+			if ( j<=3 )
 			  begin
+				 
 				 tmp_address = (i<<2)+j;
-				 tmp_data = data; //mem[i+j];
- 
-				 //send address
-	 			 for (h=0; h<=31; h = h+8)
-					begin
-					  for (k=h; k<h+8; k=k+1)
-						 data[k] = tmp_address[k];
-					  valid = 1;
-					  while (!sram_ack_data);
-					  valid = 0;
-					end
-
-				 //send data
-				 for (h=0; h<=31; h = h+8)
-					begin
-						for (k=h; k<h+8; k=k+1)
-						  data[k] = tmp_data[k];
-						valid = 1;
-						while (!sram_ack_data);
-						valid = 0;
-					end
+				  //tmp_data = mem[i+j];
+						
+				 //send address & data
+				 if (!sendAddress)
+					sendAddress_start = 1;
 
 				 if (i == depth)
 					 done = 1;
-
-				 while (sram_ack == 0);
+				 
+				 if (sendAddress && sendData && sram_ack)
+					begin
+						j = j+1;
+						$display("Address complete: %h \n", tmp_address);
+						$display("Data Complete: %h \n", tmp_data);
+						tmp_data = tmp_data+ 1;
+						sendAddress = 0;
+						sendData = 0;
+					end
 			  end
-		  end
+		  if (j > 3 && sendAddress && sendData && sram_ack)
+			begin
+				i = i+4;
+				j = 0;
+				sendAddress = 0;
+				sendData = 0;
+			end			  
+		 end
  
 end
+
+//send address
+always @ (posedge syst_clk) begin
+	if (sendAddress_start)
+	begin
+		if (h <= 24) //for (h=0; h<=24; h = h+8)
+			begin
+			 data = tmp_address[h+:8];
+			 
+			 if (ackDataArrived)
+				begin
+				 $display("Address partial sent: %h \n", data);
+				 valid = 0;
+				 h = h+8;
+				 ackDataArrived = 0;
+				end
+			 else 
+				begin
+				 wait_ack = 1;
+				 valid = 1;
+				end
+			end
+		else
+			begin
+				sendAddress_start = 0;
+				sendData_start = 1;
+				sendAddress = 1;
+				h = 0;
+			end
+	end
+		
+	if (sendData_start)
+	begin
+		if (k <= 24) //for (h=0; h<=24; h = h+8)
+			begin
+			 data = tmp_data[k+:8];
+			 valid = 1;
+			 
+			 
+			 if (ackDataArrived)
+				begin
+				$display("Data partial sent: %h \n", data);
+				 valid = 0;
+				 k = k+8;
+				 ackDataArrived = 0;
+				end
+			 else
+				begin
+				 wait_ack = 1;
+				 valid = 1;
+				end
+				
+			end
+		else
+			begin
+				sendData_start = 0;
+				sendData = 1;
+				k = 0;
+			end
+	end
+end
+
+always @(posedge syst_clk) begin
+	if (wait_ack)
+		begin
+			if (sram_ack_data)
+			 begin
+				ackDataArrived = 1;
+				wait_ack = 0;
+			 end
+		end
+end
+
 
 /*
 //read from sram
