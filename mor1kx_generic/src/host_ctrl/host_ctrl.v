@@ -4,7 +4,7 @@ module host_ctrl
 	 input [7:0] data_i,
 	 input done_i,
 	 input valid_i,
-	 //input 	wb_ack,
+	 input 	wb_ack,
 	 output ack_o,
 	 output reg ack_data,
 	 output hostctrl_cpu_rst
@@ -44,12 +44,12 @@ module host_ctrl
 	 assign hostctrl_cpu_rst = ctrl_cpu_rst;
 	 assign wb_adr = address;
 	 assign wb_dat = data;
-	 assign wb_we = we;
-	 assign wb_sel = sel;
-	 assign wb_cyc = cyc;
-	 assign wb_stb = stb;
-	 assign wb_cti = 3'h0;
-	 assign wb_bte = 2'h0;
+	 //assign wb_we = we;
+	 //assign wb_sel = sel;
+	 //assign wb_cyc = cyc;
+	 //assign wb_stb = stb;
+	 //assign wb_cti = 3'h0;
+	 //assign wb_bte = 2'h0;
 	 
 	always @ (posedge clk_i) begin
 		if (rst_i)
@@ -57,18 +57,16 @@ module host_ctrl
 		else
 			begin
 				ctrl_ack <= 0;
-				ctrl_data <= 0;
 				cyc <= 0;
 				
 				case (ss) 
-				  begin
 					IDLE:	begin
 							if (!done_i) begin
-								ss<=WADDR;
+								ss<=WADD;
 								ctrl_cpu_rst <= 1;
 							end
 						end
-					WADDR:	begin
+					WADD:	begin
 							if (!waddr_ack)
 								waddr_start <= 1;
 							else begin
@@ -78,12 +76,13 @@ module host_ctrl
 							end
 						end
 					WDATA:	begin
-							if (!wack_data)
-								waddr_data <= 1;
+							if (!wdata_ack)
+								wdata_start <= 1;
 							else begin
-								ss << WBTX;
+								ss <= WADD;
 								wdata_start <= 0;
 								wdata_ack <= 0;
+								ctrl_ack <= 1;
 							end
 						end
 					WBTX:	begin
@@ -103,7 +102,7 @@ module host_ctrl
 						end
 					WACK:	begin
 							if (!done_i) begin
-								ss <= WADDR;
+								ss <= WADD;
 							end
 							else begin
 								ss <= IDLE;
@@ -111,7 +110,7 @@ module host_ctrl
 							end
 							ctrl_ack <= 1;
 						end
-				  end
+				 
 				endcase
 			end
 	end
@@ -123,37 +122,35 @@ module host_ctrl
 		else begin
 			if (waddr_start) begin
 				case (countAddress) 
-				begin
 					ZERO:	begin
 						if (valid_i) begin
-							address_ctrl[0:7] <= data_i[0:7];
+							address_ctrl[7:0] <= data_i[7:0];
 							countAddress <= ONE;
 							ack_data <=1;
 						end
 						end
 					ONE:	begin
 						if (valid_i) begin
-							address_ctrl[8:15] <= data_i[0:7];
+							address_ctrl[15:8] <= data_i[7:0];
 							countAddress <= TWO;
 							ack_data <=1;
 						end
 						end
 					TWO:	begin
 						if (valid_i) begin
-							address_ctrl[16:23] <= data_i[0:7];
+							address_ctrl[23:16] <= data_i[7:0];
 							countAddress <= THREE;
 							ack_data <=1;
 						end
 						end
 					THREE:	begin
 						if (valid_i) begin
-							address_ctrl[24:31] <= data_i[0:7];
+							address_ctrl[31:24] <= data_i[7:0];
 							countAddress <= ZERO;
 							ack_data <=1;
 							waddr_ack <= 1;
 						end
 						end
-				end
 				endcase
 			end
 		end
@@ -166,50 +163,49 @@ module host_ctrl
 		else begin
 			if (wdata_start) begin
 				case (countData) 
-				begin
 					ZERO:	begin
 						if (valid_i) begin
-							data_ctrl[0:7] <= data_i[0:7];
+							data_ctrl[7:0] <= data_i[7:0];
 							countData <= ONE;
 							ack_data <=1;
 						end
 						end
 					ONE:	begin
 						if (valid_i) begin
-							data_ctrl[8:15] <= data_i[0:7];
+							data_ctrl[15:8] <= data_i[7:0];
 							countData <= TWO;
 							ack_data <=1;
 						end
 						end
 					TWO:	begin
 						if (valid_i) begin
-							data_ctrl[16:23] <= data_i[0:7];
+							data_ctrl[23:16] <= data_i[7:0];
 							countData <= THREE;
 							ack_data <=1;
 						end
 						end
 					THREE:	begin
 						if (valid_i) begin
-							data_ctrl[24:31] <= data_i[0:7];
+							data_ctrl[31:24] <= data_i[7:0];
 							countData <= ZERO;
 							ack_data <=1;
 							wdata_ack <= 1;
 						end
 						end
-				end
 				endcase
 			end
 		end
 	end
 	 
-	 always @ (posedge clk_i) begin
+	 
+/*
+always @ (posedge clk_i) begin
 		if (valid_i) begin
 	   $display("host ctrl received %h\n", data_i);
 		 ack_data <= 1;
 		 ctrl_ack <= 1;
 		 end
 	 end
-/*
 
  // ADDRESS MACHINE
 	always @ (posedge clk_i)
