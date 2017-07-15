@@ -31,7 +31,6 @@ module wb_ram_generic
 	if(memfile != "") begin
 	   $display("Preloading %m from %s", memfile);
 	   $readmemh(memfile, mem);
-		
 		//$display("Addr: %d, Data: %h\n",64,mem[64]);
 		
 	end

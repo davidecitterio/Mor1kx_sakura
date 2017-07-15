@@ -108,20 +108,34 @@ reg [31:0]  i = 0,j = 0, k = 0 ,h = 0;
 reg sendAddress = 0, sendData = 0, ackArrived = 0, wait_ack = 0, ackDataArrived = 0;
 reg sendAddress_start = 0, sendData_start = 0;
 
+//read from sram
+initial begin
+ $readmemh("sram.vmem", mem);
+ done <= 0; 
+end
+
+always @ (posedge syst_rst) begin
+	done <= 0;
+	i = 0; j= 0; k= 0; h = 0;
+	sendAddress = 0; sendData = 0; 
+	ackArrived = 0; wait_ack = 0; ackDataArrived = 0;
+	sendAddress_start = 0; sendData_start = 0;
+end
+
 always @ (posedge syst_clk) begin
-		if ( i<4 ) //for (i = 0; !done; i= i+4)
+		if ( !done ) //for (i = 0; !done; i= i+4)
 		 begin
 			if ( j<=3 )
 			  begin
 				 
-				 tmp_address = (i<<2)+j;
-				  //tmp_data = mem[i+j];
+				 tmp_address = ((i+1)<<6)+j;
+				 tmp_data = mem[tmp_address];
 						
 				 //send address & data
 				 if (!sendAddress)
 					sendAddress_start = 1;
 
-				 if (i == depth)
+				 if (i >= 1450)
 					 done = 1;
 				 
 				 if (sendAddress && sendData && sram_ack)
@@ -129,18 +143,21 @@ always @ (posedge syst_clk) begin
 						j = j+1;
 						$display("Address complete: %h \n", tmp_address);
 						$display("Data Complete: %h \n", tmp_data);
-						tmp_data = tmp_data+ 1;
 						sendAddress = 0;
 						sendData = 0;
 					end
 			  end
-		  if (j > 3 && sendAddress && sendData && sram_ack)
+		  if (j > 3)
 			begin
 				i = i+4;
 				j = 0;
-				sendAddress = 0;
-				sendData = 0;
+				sendAddress_start = 0;
+				sendData_start = 0;
 			end			  
+		 end
+		 else begin
+			sendAddress_start = 0;
+			sendData_start = 0;
 		 end
  
 end
