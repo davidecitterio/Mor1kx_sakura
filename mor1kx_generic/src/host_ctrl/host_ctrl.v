@@ -115,6 +115,92 @@ module host_ctrl
 				endcase
 			end
 	end
+	
+	//ADDRESS FSM
+	always @ (posedge clk_i) begin
+		if (rst_i)
+			countAddress <= ZERO;
+		else begin
+			if (waddr_start) begin
+				case (countAddress) 
+				begin
+					ZERO:	begin
+						if (valid_i) begin
+							address_ctrl[0:7] <= data_i[0:7];
+							countAddress <= ONE;
+							ack_data <=1;
+						end
+						end
+					ONE:	begin
+						if (valid_i) begin
+							address_ctrl[8:15] <= data_i[0:7];
+							countAddress <= TWO;
+							ack_data <=1;
+						end
+						end
+					TWO:	begin
+						if (valid_i) begin
+							address_ctrl[16:23] <= data_i[0:7];
+							countAddress <= THREE;
+							ack_data <=1;
+						end
+						end
+					THREE:	begin
+						if (valid_i) begin
+							address_ctrl[24:31] <= data_i[0:7];
+							countAddress <= ZERO;
+							ack_data <=1;
+							waddr_ack <= 1;
+						end
+						end
+				end
+				endcase
+			end
+		end
+	end
+	
+	//DATA FSM
+	always @ (posedge clk_i) begin
+		if (rst_i)
+			countData <= ZERO;
+		else begin
+			if (wdata_start) begin
+				case (countData) 
+				begin
+					ZERO:	begin
+						if (valid_i) begin
+							data_ctrl[0:7] <= data_i[0:7];
+							countData <= ONE;
+							ack_data <=1;
+						end
+						end
+					ONE:	begin
+						if (valid_i) begin
+							data_ctrl[8:15] <= data_i[0:7];
+							countData <= TWO;
+							ack_data <=1;
+						end
+						end
+					TWO:	begin
+						if (valid_i) begin
+							data_ctrl[16:23] <= data_i[0:7];
+							countData <= THREE;
+							ack_data <=1;
+						end
+						end
+					THREE:	begin
+						if (valid_i) begin
+							data_ctrl[24:31] <= data_i[0:7];
+							countData <= ZERO;
+							ack_data <=1;
+							wdata_ack <= 1;
+						end
+						end
+				end
+				endcase
+			end
+		end
+	end
 	 
 	 always @ (posedge clk_i) begin
 		if (valid_i) begin
@@ -124,81 +210,6 @@ module host_ctrl
 		 end
 	 end
 /*
-	always @(posedge clk_i)
-	begin
-	  if(rst_i)  
-		   ss<=IDLE;
-	  else
-		begin
-	    ctrl_ack <= 0;
-		 ack_data <= 0;
-	    cyc <= 0;
-	    
-	    case(ss)
-		  begin
-	        IDLE:   begin
-							if(done_i ==0)  
-							 begin
-							  ss<=WADDR;
-		       			  ctrl_cpu_rst <= 1;
-							 end
-		     			 end
-	  
-	        WADDR:  begin
-							if (!waddr_ack)
-								waddr_start <=1;
-							else begin
-								ss <= WDATA;
-								waddr_start <= 0;
-								waddr_ack = 0;
-							end
-						 end
-
-			 
-	        WDATA:  begin
-							if (!wdata_ack)
-								wdata_start <=1;
-							else begin
-								ss <= WADDR;
-								wdata_start <= 0;
-								wdata_ack = 0;
-							end
-						 end
-
-	        WBTX:   begin
-							if (!wb_ack)
-								begin
-								  address <= address_ctrl;
-								  data <= data_ctrl;
-								  we <= 1; //ciclo scrittura
-								  cyc <= 1; //inizio a mandare dati
-								  stb <=1; //segnali stabili
-								  sel <= 4'b1111; //32 bit
-							    end
-							 else
-								begin
-									 ss<<WACK;
-									 cyc <= 0;
-									 stb <= 0;
-							 end
-		    	 		 end
-
-	        WACK: begin
-							if (done_i==0) 
-							  begin
-							   ss <= WADDR;
-							  end
-							else 
-							  begin
-								ss <= IDLE;
-								ctrl_cpu_rst <= 0;
-			    			  end
-							 ctrl_ack <= 1;
-						  end
-	     end
-	    endcase 
-	   end  
-	end
 
  // ADDRESS MACHINE
 	always @ (posedge clk_i)
