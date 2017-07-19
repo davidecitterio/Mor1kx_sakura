@@ -51,6 +51,70 @@ module host_ctrl
 	 assign wb_cti = 3'h0;
 	 assign wb_bte = 2'h0;
 	 
+	always @ (posedge clk_i) begin
+		if (rst_i)
+			ss<=IDLE;
+		else
+			begin
+				ctrl_ack <= 0;
+				ctrl_data <= 0;
+				cyc <= 0;
+				
+				case (ss) 
+				  begin
+					IDLE:	begin
+							if (!done_i) begin
+								ss<=WADDR;
+								ctrl_cpu_rst <= 1;
+							end
+						end
+					WADDR:	begin
+							if (!waddr_ack)
+								waddr_start <= 1;
+							else begin
+								ss<= WDATA;
+								waddr_start <= 0;
+								waddr_ack <= 0;
+							end
+						end
+					WDATA:	begin
+							if (!wack_data)
+								waddr_data <= 1;
+							else begin
+								ss << WBTX;
+								wdata_start <= 0;
+								wdata_ack <= 0;
+							end
+						end
+					WBTX:	begin
+							if (!wb_ack) begin
+								address <= address_ctrl;
+								data <= data_ctrl;
+								we  <= 1;
+								cyc <= 1;
+								stb <= 1;
+								sel <= 4'b1111;
+							end
+							else begin
+								ss <= WACK;
+								cyc <= 0;
+								stb <= 0;
+							end
+						end
+					WACK:	begin
+							if (!done_i) begin
+								ss <= WADDR;
+							end
+							else begin
+								ss <= IDLE;
+								ctrl_cpu_rst <= 0;
+							end
+							ctrl_ack <= 1;
+						end
+				  end
+				endcase
+			end
+	end
 	 
 	 always @ (posedge clk_i) begin
 		if (valid_i) begin
@@ -60,27 +124,27 @@ module host_ctrl
 		 end
 	 end
 /*
-	always @(posedge clk_i)
+	always @(posedgeÂ clk_i)
 	begin
-	  if(rst_i)  
+	  if(rst_i) Â 
 		   ss<=IDLE;
-	  else
+	 Â else
 		begin
 	    ctrl_ack <= 0;
 		 ack_data <= 0;
 	    cyc <= 0;
-	    
+	  Â  
 	    case(ss)
 		  begin
-	        IDLE:   begin
-							if(done_i ==0)  
+	        IDLE: Â  begin
+							if(done_i ==0) Â 
 							 begin
 							  ss<=WADDR;
 		       			  ctrl_cpu_rst <= 1;
 							 end
 		     			 end
-	  
-	        WADDR:  begin
+	 Â 
+	        WADDR: Â begin
 							if (!waddr_ack)
 								waddr_start <=1;
 							else begin
@@ -91,7 +155,7 @@ module host_ctrl
 						 end
 
 			 
-	        WDATA:  begin
+	 Â  Â  Â  Â WDATA: Â begin
 							if (!wdata_ack)
 								wdata_start <=1;
 							else begin
@@ -132,7 +196,7 @@ module host_ctrl
 							 ctrl_ack <= 1;
 						  end
 	     end
-	    endcase 
+	    endcaseÂ 
 	   end  
 	end
 
@@ -188,7 +252,7 @@ module host_ctrl
 		//DATA MACHINE
 		always @ (posedge clk_i)
 		  begin
-			if(rst_i) 
+			if(rst_i)Â 
 			  countData<=ZERO;
 			else
 			  begin
