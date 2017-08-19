@@ -130,16 +130,16 @@ host_ctrl host0(
 	.ack_o	(hostctrl_ack), //ack scritto in memoria
    .ack_data (hostctrl_ack_data), //ack ricevuti 8 bit
 	.next (next), //procedere alla ricezione del dato successivo
-   .valid_i (hostctrl_valid) //ho inviato una parola valida
-	//.wb_adr	(0),//(wb_m2s_hostctrl_adr),
-	//.wb_dat	(0),//(wb_m2s_hostctrl_dat),
-	//.wb_ack	(0),//(wb_s2m_hostctrl_ack),
-	//.wb_cyc	(0),//(wb_m2s_hostctrl_cyc),
-	//.wb_stb	(0),//(wb_m2s_hostctrl_stb),
-	//.wb_sel	(0),//(wb_m2s_hostctrl_sel),
-	//.wb_we	(0),//(wb_m2s_hostctrl_we),
-	//.wb_cti	(0),//(wb_m2s_hostctrl_cti),
-	//.wb_bte	(0)//(wb_m2s_hostctrl_bte)
+   .valid_i (hostctrl_valid), //ho inviato una parola valida
+	.wb_adr	(wb_m2s_hostctrl_adr),
+	.wb_dat	(wb_m2s_hostctrl_dat),
+	.wb_ack	(wb_s2m_hostctrl_ack),
+	.wb_cyc	(wb_m2s_hostctrl_cyc),
+	.wb_stb	(wb_m2s_hostctrl_stb),
+	.wb_sel	(wb_m2s_hostctrl_sel),
+	.wb_we	(wb_m2s_hostctrl_we),
+	.wb_cti	(wb_m2s_hostctrl_cti),
+	.wb_bte	(wb_m2s_hostctrl_bte)
 );
 
 

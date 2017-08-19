@@ -99,7 +99,7 @@ reg done = 0;
 reg [7:0] data = 8'b00000000;
 reg valid = 0, next = 0;
 
-localparam depth = MEM_SIZE/4;
+localparam depth = 5877;
 
 reg [31:0] mem [0:depth-1]; //variabile memorizzazione readmemh
 
@@ -107,7 +107,7 @@ reg [31:0] tmp_address= 0, tmp_data=0;
 
 reg [31:0]  i = 0,j = 0, k = 0 ,h = 0;
 
-reg sendAddress = 0, sendData = 0, ackArrived = 0, wait_ack = 0, ackDataArrived = 0;
+reg sendAddress = 0, sendData = 0, wait_ack = 0, ackDataArrived = 0;
 reg sendAddress_start = 0, sendData_start = 0;
 
 //read from sram
@@ -120,7 +120,7 @@ always @ (posedge syst_rst) begin
 	done <= 0;
 	i = 0; j= 0; k= 0; h = 0;
 	sendAddress = 0; sendData = 0; 
-	ackArrived = 0; wait_ack = 0; ackDataArrived = 0;
+	wait_ack = 0; ackDataArrived = 0;
 	sendAddress_start = 0; sendData_start = 0;
 	valid = 0; next = 0;
 end
@@ -138,7 +138,7 @@ always @ (posedge syst_clk) begin
 				 if (!sendAddress)
 					sendAddress_start = 1;
 
-				 if (i>=1400/4)
+				 if (i>=15)
 					 done = 1;
 				 
 				 if (sendAddress && sendData && sram_ack)

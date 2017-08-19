@@ -58,7 +58,6 @@ wire  [7:0] wb_s2m_uart_dat;
 wire        wb_s2m_uart_ack;
 wire        wb_s2m_uart_err;
 wire        wb_s2m_uart_rty;
-/*
 wire [31:0] wb_m2s_hostctrl_adr;
 wire [31:0] wb_m2s_hostctrl_dat;
 wire  [3:0] wb_m2s_hostctrl_sel;
@@ -71,8 +70,6 @@ wire [31:0] wb_s2m_hostctrl_dat;
 wire        wb_s2m_hostctrl_ack;
 wire        wb_s2m_hostctrl_err;
 wire        wb_s2m_hostctrl_rty;
-
-*/
 
 wb_intercon wb_intercon0
    (.wb_clk_i        (wb_clk),
@@ -136,8 +133,8 @@ wb_intercon wb_intercon0
     .wb_uart_dat_i   (wb_s2m_uart_dat),
     .wb_uart_ack_i   (wb_s2m_uart_ack),
     .wb_uart_err_i   (wb_s2m_uart_err),
-    .wb_uart_rty_i   (wb_s2m_uart_rty)
-/*
+    .wb_uart_rty_i   (wb_s2m_uart_rty),
+
     .wb_hostctrl_adr_i    (wb_m2s_hostctrl_adr),
     .wb_hostctrl_dat_i    (wb_m2s_hostctrl_dat),
     .wb_hostctrl_sel_i    (wb_m2s_hostctrl_sel),
@@ -150,5 +147,5 @@ wb_intercon wb_intercon0
     .wb_hostctrl_ack_o    (wb_s2m_hostctrl_ack),
     .wb_hostctrl_err_o    (wb_s2m_hostctrl_err),
     .wb_hostctrl_rty_o    (wb_s2m_hostctrl_rty)
-*/
+
 );
