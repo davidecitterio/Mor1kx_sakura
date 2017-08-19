@@ -5,6 +5,7 @@ module host_ctrl
 	 input done_i,
 	 input valid_i,
 	 input 	wb_ack,
+	 input next,
 	 output ack_o,
 	 output reg ack_data,
 	 output hostctrl_cpu_rst
@@ -56,7 +57,6 @@ module host_ctrl
 			ss<=IDLE;
 		else
 			begin
-				ctrl_ack <= 0;
 				cyc <= 0;
 				
 				case (ss) 
@@ -73,6 +73,8 @@ module host_ctrl
 								ss<= WDATA;
 								waddr_start <= 0;
 								waddr_ack <= 0;
+								$display("Received address: %h \n", address_ctrl);
+								ctrl_ack <= 0;
 							end
 						end
 					WDATA:	begin
@@ -83,6 +85,7 @@ module host_ctrl
 								wdata_start <= 0;
 								wdata_ack <= 0;
 								ctrl_ack <= 1;
+								$display("Received data: %h \n", data_ctrl);
 							end
 						end
 					WBTX:	begin
@@ -117,6 +120,7 @@ module host_ctrl
 	
 	//ADDRESS FSM
 	always @ (posedge clk_i) begin
+	   ack_data <= 0;
 		if (rst_i)
 			countAddress <= ZERO;
 		else begin
@@ -125,30 +129,33 @@ module host_ctrl
 					ZERO:	begin
 						if (valid_i) begin
 							address_ctrl[7:0] <= data_i[7:0];
-							countAddress <= ONE;
 							ack_data <=1;
 						end
+						if (next)
+								countAddress <= ONE;
 						end
 					ONE:	begin
 						if (valid_i) begin
 							address_ctrl[15:8] <= data_i[7:0];
-							countAddress <= TWO;
 							ack_data <=1;
 						end
+						if (next)
+								countAddress <= TWO;
 						end
 					TWO:	begin
 						if (valid_i) begin
 							address_ctrl[23:16] <= data_i[7:0];
-							countAddress <= THREE;
 							ack_data <=1;
 						end
+						if (next)
+								countAddress <= THREE;
 						end
 					THREE:	begin
 						if (valid_i) begin
 							address_ctrl[31:24] <= data_i[7:0];
-							countAddress <= ZERO;
 							ack_data <=1;
 							waddr_ack <= 1;
+							countAddress <= ZERO;
 						end
 						end
 				endcase
@@ -166,31 +173,34 @@ module host_ctrl
 					ZERO:	begin
 						if (valid_i) begin
 							data_ctrl[7:0] <= data_i[7:0];
-							countData <= ONE;
 							ack_data <=1;
 						end
+						if (next)
+								countData <= ONE;
 						end
 					ONE:	begin
 						if (valid_i) begin
 							data_ctrl[15:8] <= data_i[7:0];
-							countData <= TWO;
 							ack_data <=1;
 						end
+						if (next)
+								countData <= TWO;
 						end
 					TWO:	begin
 						if (valid_i) begin
 							data_ctrl[23:16] <= data_i[7:0];
-							countData <= THREE;
 							ack_data <=1;
 						end
+						if (next)
+								countData <= THREE;
 						end
 					THREE:	begin
 						if (valid_i) begin
 							data_ctrl[31:24] <= data_i[7:0];
-							countData <= ZERO;
 							ack_data <=1;
 							wdata_ack <= 1;
-						end
+							countData <= ZERO;
+						end	
 						end
 				endcase
 			end

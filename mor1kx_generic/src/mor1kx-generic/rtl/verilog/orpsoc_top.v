@@ -23,12 +23,13 @@ module orpsoc_top
 		input [31:0] wb_s2m_mem_dat_sim,
 		input wb_s2m_mem_ack_sim,
 		input wb_s2m_mem_err_sim,
-    //host_ctrl in/out
+      //host_ctrl in/out
 		input [7:0] hostctrl_data,
 		input  hostctrl_done,
 		output hostctrl_ack,
-    output hostctrl_ack_data,
-    input  hostctrl_valid  );
+      output hostctrl_ack_data,
+      input  hostctrl_valid,
+	   input  next);
 
 localparam wb_aw = 32;
 localparam wb_dw = 32;
@@ -128,6 +129,7 @@ host_ctrl host0(
 	.done_i	(hostctrl_done), //finito di mandare dati
 	.ack_o	(hostctrl_ack), //ack scritto in memoria
    .ack_data (hostctrl_ack_data), //ack ricevuti 8 bit
+	.next (next), //procedere alla ricezione del dato successivo
    .valid_i (hostctrl_valid) //ho inviato una parola valida
 	//.wb_adr	(0),//(wb_m2s_hostctrl_adr),
 	//.wb_dat	(0),//(wb_m2s_hostctrl_dat),

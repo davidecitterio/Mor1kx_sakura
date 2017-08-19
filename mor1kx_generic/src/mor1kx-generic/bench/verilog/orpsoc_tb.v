@@ -76,7 +76,8 @@ module orpsoc_tb;
       .hostctrl_done (sram_done),
       .hostctrl_ack  (sram_ack),
       .hostctrl_ack_data  (sram_ack_data),
-      .hostctrl_valid(sram_valid)
+      .hostctrl_valid(sram_valid),
+		.next(sram_next)
       
 );
 
@@ -92,10 +93,11 @@ wire sram_ack;
 wire sram_ack_data;
 wire sram_done;
 wire sram_valid;
+wire sram_next;
 
 reg done = 0;
 reg [7:0] data = 8'b00000000;
-reg valid = 0;
+reg valid = 0, next = 0;
 
 localparam depth = MEM_SIZE/4;
 
@@ -120,10 +122,11 @@ always @ (posedge syst_rst) begin
 	sendAddress = 0; sendData = 0; 
 	ackArrived = 0; wait_ack = 0; ackDataArrived = 0;
 	sendAddress_start = 0; sendData_start = 0;
+	valid = 0; next = 0;
 end
 
 always @ (posedge syst_clk) begin
-		if ( !done ) //for (i = 0; !done; i= i+4)
+		if ( !done ) 
 		 begin
 			if ( j<=3 )
 			  begin
@@ -135,14 +138,14 @@ always @ (posedge syst_clk) begin
 				 if (!sendAddress)
 					sendAddress_start = 1;
 
-				 if (i >= 1450)
+				 if (i>=1400/4)
 					 done = 1;
 				 
 				 if (sendAddress && sendData && sram_ack)
 					begin
 						j = j+1;
-						$display("Address complete: %h \n", tmp_address);
-						$display("Data Complete: %h \n", tmp_data);
+						$display("Address complete sent: %h \n", tmp_address);
+						$display("Data Complete sent: %h \n", tmp_data);
 						sendAddress = 0;
 						sendData = 0;
 					end
@@ -172,15 +175,16 @@ always @ (posedge syst_clk) begin
 			 
 			 if (ackDataArrived)
 				begin
-				 $display("Address partial sent: %h \n", data);
 				 valid = 0;
 				 h = h+8;
 				 ackDataArrived = 0;
+				 next = 1;
 				end
 			 else 
 				begin
 				 wait_ack = 1;
 				 valid = 1;
+				 next = 0;
 				end
 			end
 		else
@@ -189,6 +193,7 @@ always @ (posedge syst_clk) begin
 				sendData_start = 1;
 				sendAddress = 1;
 				h = 0;
+				next = 0;
 			end
 	end
 		
@@ -198,19 +203,18 @@ always @ (posedge syst_clk) begin
 			begin
 			 data = tmp_data[k+:8];
 			 valid = 1;
-			 
-			 
 			 if (ackDataArrived)
 				begin
-				$display("Data partial sent: %h \n", data);
 				 valid = 0;
 				 k = k+8;
 				 ackDataArrived = 0;
+				 next = 1;
 				end
 			 else
 				begin
 				 wait_ack = 1;
 				 valid = 1;
+				 next = 0;
 				end
 				
 			end
@@ -219,6 +223,7 @@ always @ (posedge syst_clk) begin
 				sendData_start = 0;
 				sendData = 1;
 				k = 0;
+				next = 0;
 			end
 	end
 end
@@ -288,7 +293,7 @@ end
 assign sram_done = done;
 assign sram_data = data;
 assign sram_valid = valid;
-
+assign sram_next = next;
 
 
 
